@@ -1,0 +1,50 @@
+# FFmpeg播放器插件开发 AI 辅助设置
+
+## 项目概述
+- 项目名称：FFmpeg播放器 Flutter 插件
+- 主要功能：使用 FFmpeg 处理和播放媒体文件的 Flutter 跨平台插件
+- 支持平台：Android 和 iOS
+
+## 技术栈
+- Flutter/Dart
+- Android (Java/Kotlin)
+- iOS (Swift/Objective-C)
+- FFmpeg 媒体处理库
+
+## 代码规范
+- Dart：遵循 Flutter 官方代码风格指南
+- 类名：使用大驼峰命名法 (例如：FfmpegPlayer、VideoController)
+- 方法名：使用小驼峰命名法 (例如：initPlayer, seekToPosition)
+- 私有变量/方法：使用下划线前缀 (例如：_playerInstance, _initializeNative)
+- 常量：使用大写蛇形命名法 (例如：MAX_VOLUME, DEFAULT_PLAYBACK_RATE)
+
+## 开发注意事项
+- 确保正确处理不同平台的资源释放和生命周期
+- 对于耗时操作，使用异步处理避免阻塞主线程
+- 在 Android 平台正确处理权限请求
+- 在 iOS 平台处理好内存管理和 ARC
+- 加入详细的错误处理和日志记录
+
+## FFmpeg 相关知识
+- 视频编解码：H.264, H.265, VP9 等
+- 音频编解码：AAC, MP3, FLAC 等
+- 常用容器格式：MP4, MKV, WebM, AVI
+- 常用视频处理参数：分辨率, 比特率, 帧率
+- 流媒体协议：RTMP, HLS, DASH, RTSP
+
+## 平台集成注意事项
+- Android：
+  * 确保 FFmpeg 库的正确导入和配置
+  * 处理好权限管理 (存储、网络等)
+  * 优化大文件处理的内存使用
+
+- iOS：
+  * 确保 Podfile 正确配置 FFmpeg 依赖
+  * 注意沙盒限制和文件访问
+  * 处理好系统音频会话管理
+
+## 性能优化
+- 使用合适的 FFmpeg 编译选项减小库大小
+- 流式处理避免一次性加载大文件
+- 实现缓存机制提升重复播放体验
+- 合理设置播放缓冲区大小平衡延迟和流畅度 

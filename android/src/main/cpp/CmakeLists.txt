@@ -1,0 +1,188 @@
+cmake_minimum_required(VERSION 3.4.1)
+
+find_library( log-lib
+        log )
+
+
+set(FFMPEG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg/include)
+add_library( avcodec SHARED IMPORTED )
+add_library( avformat SHARED IMPORTED )
+add_library( avutil SHARED IMPORTED )
+add_library( swscale SHARED IMPORTED )
+add_library( swresample SHARED IMPORTED )
+set_target_properties( # Specifies the target library.
+        avcodec
+        # Specifies the parameter you want to define.
+        PROPERTIES IMPORTED_LOCATION
+        # Provides the path to the library you want to import.
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg/lib/${ANDROID_ABI}/libavcodec.so)
+set_target_properties( # Specifies the target library.
+        avformat
+        # Specifies the parameter you want to define.
+        PROPERTIES IMPORTED_LOCATION
+        # Provides the path to the library you want to import.
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg/lib/${ANDROID_ABI}/libavformat.so)
+set_target_properties( # Specifies the target library.
+        avutil
+        # Specifies the parameter you want to define.
+        PROPERTIES IMPORTED_LOCATION
+        # Provides the path to the library you want to import.
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg/lib/${ANDROID_ABI}/libavutil.so)
+set_target_properties( # Specifies the target library.
+        swscale
+        # Specifies the parameter you want to define.
+        PROPERTIES IMPORTED_LOCATION
+        # Provides the path to the library you want to import.
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg/lib/${ANDROID_ABI}/libswscale.so)
+set_target_properties( # Specifies the target library.
+        swresample
+        # Specifies the parameter you want to define.
+        PROPERTIES IMPORTED_LOCATION
+        # Provides the path to the library you want to import.
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg/lib/${ANDROID_ABI}/libswresample.so)
+
+
+include_directories(${FFMPEG_DIR}/${ANDROID_ABI})
+
+# add the h264bitstream library
+set(H264_BITSTREAM_DIR ${CMAKE_SOURCE_DIR}/libs/h264bitstream)
+add_library(h264bitstream
+        SHARED
+        ${H264_BITSTREAM_DIR}/h264_stream.c
+        ${H264_BITSTREAM_DIR}/h264_sei.c
+        ${H264_BITSTREAM_DIR}/h264_nal.c
+)
+target_link_libraries(h264bitstream
+        ${log-lib}
+        log
+        android)
+include_directories(${H264_BITSTREAM_DIR})
+
+# add the h265nal library
+set(H265NAL_DIR ${CMAKE_SOURCE_DIR}/libs/h265nal)
+set(H265NAL_SRC_DIR ${H265NAL_DIR}/src)
+add_subdirectory(${H265NAL_DIR}/webrtc)
+add_subdirectory(${H265NAL_DIR}/src)
+include_directories(${H265NAL_DIR}/webrtc)
+include_directories(${H265NAL_DIR}/src)
+
+# Add the helper directories from the video/telemetry shared folder
+include_directories(Helper)
+include_directories(InputOutput)
+include_directories(NDKHelper)
+include_directories(Parser)
+include_directories(Decoder)
+include_directories(NALU)
+include_directories(VideoPlayer)
+include_directories(Experiment360)
+
+
+
+add_library(Helper
+        SHARED
+        Helper/ZDummy.cpp
+        Helper/TimeHelper.hpp
+
+)
+
+add_library(NDKHelper
+        SHARED
+        NDKHelper/ZDummy.cpp
+)
+
+target_link_libraries( Helper
+        log
+        android)
+
+target_link_libraries( NDKHelper
+        log
+        android)
+
+#Webbn 360 stuff
+add_library( FFMpegVideoReceiver
+        SHARED
+        Experiment360/FFMpegVideoReceiver.cpp)
+target_link_libraries( FFMpegVideoReceiver
+        ${log-lib}
+        log
+        android
+        mediandk
+        OpenMAXAL
+        avcodec
+        avformat
+        avutil
+        swscale
+        swresample
+        h264bitstream
+)
+
+add_library( VideoNative
+        SHARED
+        Parser/H26XParser.cpp
+        Parser/ParseRAW.cpp
+        Parser/ParseRTP.cpp
+        Parser/EncodeRtpTest.cpp
+        Decoder/VideoDecoder.cpp
+)
+
+target_link_libraries( VideoNative
+        FFMpegVideoReceiver
+        ${log-lib}
+        log
+        android
+        mediandk
+        OpenMAXAL
+        h264bitstream
+        avcodec
+        avformat
+        avutil
+        swscale
+        swresample
+        h265nal
+)
+
+# the transmitter stuff
+add_library( VideoTransmitter
+        SHARED
+        InputOutput/UDPSender.cpp
+        Parser/ParseRTP.cpp
+        Parser/EncodeRtpTest.cpp
+        VideoTransmitter/VideoTransmitter.cpp
+)
+
+target_link_libraries( VideoTransmitter
+        ${log-lib}
+        log
+        android
+        h264bitstream
+)
+
+# 添加我们的 JNI 库
+add_library(
+    ffmpeg_player
+    SHARED
+    RtspPlayerJNI.cpp
+)
+
+# 链接库
+target_link_libraries(
+    ffmpeg_player
+    # FFmpeg 库
+    avcodec
+    avformat
+    avutil
+    swscale
+    swresample
+    
+    # Android 和 JNI 库
+    android
+    log
+    jnigraphics
+    VideoNative
+    h264bitstream
+    h265nal
+    mediandk
+    Helper
+    NDKHelper
+)
+
