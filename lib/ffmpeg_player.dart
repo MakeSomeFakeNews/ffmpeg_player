@@ -320,8 +320,8 @@ class _RtspPlayerViewState extends State<RtspPlayerView> {
       );
     }
 
-    final width = _safeGetNum('width')?.toDouble() ?? 640.0;
-    final height = _safeGetNum('height')?.toDouble() ?? 480.0;
+    final width = _safeGetNum('width')?.toDouble() ?? 1000.0;
+    final height = _safeGetNum('height')?.toDouble() ?? 600.0;
 
     return ClipRect(
       child: FittedBox(
