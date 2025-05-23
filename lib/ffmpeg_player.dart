@@ -322,16 +322,17 @@ class _RtspPlayerViewState extends State<RtspPlayerView> {
 
     final width = _safeGetNum('width')?.toDouble() ?? 1000.0;
     final height = _safeGetNum('height')?.toDouble() ?? 600.0;
+    return Texture(textureId: _player!.textureId);
 
-    return ClipRect(
-      child: FittedBox(
-        fit: widget.fit,
-        child: SizedBox(
-          width: width,
-          height: height,
-          child: Texture(textureId: _player!.textureId),
-        ),
-      ),
-    );
+    // return ClipRect(
+    //   child: FittedBox(
+    //     fit: widget.fit,
+    //     child: SizedBox(
+    //       width: width,
+    //       height: height,
+    //       child: Texture(textureId: _player!.textureId),
+    //     ),
+    //   ),
+    // );
   }
 }
